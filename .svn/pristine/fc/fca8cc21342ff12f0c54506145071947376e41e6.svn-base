@@ -1,0 +1,465 @@
+<!-- <div ng-include src="'header/header.view.html'"></div>  -->
+<div id="wrapper">
+    <div class="container body">
+        <div class="main_container">
+            <div ng-include src="'sidebar/sidebar.view.html'"></div> 
+            <!-- top -->
+            <div ng-include src="'header/header.view.html'"></div> 
+            <div class="right_col" role="main">
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="x_panel ">
+                                <div class="x_title my_title_page">
+                                    <h3>Quản lý nhân viên</h3>
+                                </div>
+                                <div class="x_content"> 
+                                    <div class="row">
+                                    <div class="col-md-4">
+                                        <label>TỔNG CỘNG: </label>
+                                        <label ng-model="itemDisplayed.length"> {{ itemDisplayed.length}}</label>
+                                    </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>Tên nhân viên:</label>
+                                            <input ng-model="itemNameSearch" type="text" name="item_name_filter" style="margin-left:10px;" placeholder="Nhập tên nhân viên" />
+                                            <button class="btn btn-primary" style="margin-left:10px;" ng-click="search(itemNameSearch)"><i class="fa fa-search"></i> Tra cứu</button>
+                                        </div>
+                                        
+                                    </div>
+                                    <br>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            
+                                            <button class="btn btn-danger btn-circle btn-lg" style="margin-bottom:10px;" ng-click="deleteItems()"><i class="fa fa-times"></i></button>
+                                        </div>
+
+                                    </div>
+                                    -->
+
+                                    <div class="table-responsive">
+                                        <table id="tbItems" st-safe-src="items" st-table="itemDisplayed" class="table table-bordered table-hover table-condensed table-striped jambo_table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-md-1 col-sm-1 col-xs-1"><input style="display:none;" type="checkbox" name="chkCateAll" ></th>
+                                                    <th class="col-sm-28 col-sm21 col-xs-2">STT</th>
+                                                    <th>Mã</th>
+                                                    <th>Tên nhân viên</th>
+                                                    <th>Nhóm quyền</th>
+                                                    <th>Tên đăng nhập</th>
+                                                    <th>Hình ảnh</th>
+                                                    <th>Chức vụ</th>
+                                                    <th>Trạng thái</th>     
+                                                    <th>Cập nhật</th>
+                                                    <th>Khóa/Mở khóa</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="item in itemDisplayed">
+                                                    <td class="col-md-1 col-sm-1 col-xs-1"><input type="checkbox" name="table_records" ng-click="Checked($index)" ng-model="item.delete_selected"></td>
+                                                    <td class="col-sm-28 col-sm21 col-xs-2"><span>{{$index + 1}}</span></td>
+                                                    <td><span>{{ item.staff_code}}</span></td>
+
+                                                    <td><span>{{ item.staff_name}}</span></td>
+                                                    <td><span>{{ item.staff_priority}}</span></td>
+                                                    <td><span>{{item.account}}</span></td>
+                                                    <td align="center">
+                                                        <a><img
+                                                                ngf-src="item.staff_img"
+                                                                ngf-resize="{width: 10, height: 10, quality: 0.9}" 
+                                                                ngf-no-object-url="true or false" 
+                                                                style="width:60px; height:45px;">
+                                                        </a>
+                                                    </td>
+
+                                                    <td><span>{{item.staff_level}}</span></td>
+
+                                                    <td><span>{{ showStatusName(item.status)}}</span></td>
+                                                    <td>   
+                                                        <!--   <form editable-form name="rowform" onbeforesave="saveItem($data, $index)" ng-show="rowform.$visible" class="form-buttons form-inline" >
+                                                              <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">Save</button>
+                                                              <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel();" class="btn btn-default">cancel</button>
+                                                          </form> -->
+                                                        <div class="buttons" style="text-align: center;">
+                                                            <button class="btn btn-primary btn-circle fa fa-edit" ng-click="openPopupEditStaff(size, $index, item)"></button>
+                                                        </div>  
+                                                    </td>
+                                                    <td>
+                                                        <div class="buttons" style="text-align: center;">
+                                                            <button ng-show="!item.status" class="fa fa-lock" aria-hidden="true" ng-click="openPopUpUpdateStaffStatus(size, $index, item)"></button>
+                                                            <button ng-show="item.status" class="fa fa-unlock" aria-hidden="true" ng-click="openPopUpUpdateStaffStatus(size, $index, item)"></button>
+                                                        </div>  
+                                                    </td>
+                                                </tr>
+                                            </tbody> 
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="5" class="text-center">
+                                                        <div st-pagination="" st-items-by-page="itemByPage" st-displayed-pages="7"></div>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>                         
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/ng-template" id="PopupAddItem.html">
+        <form name="addForm">
+            <div class="modal-header">
+                <h3 class="modal-title">Thêm nhân viên</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Tên nhân viên:</label> 
+                        </div>
+                        <div class="col-md-9">
+                            <input  type="text" name="staff_name" class="form-control" ng-model="newItem.staff_name" ng-maxlength="50" autofocus>
+                        </div>
+                    </div>
+                </div>
+            <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Giới tính:</label> 
+                        </div>
+                        <div class="col-md-9">
+                            <select ng-model="newItem.gender_selected" name="gender_selected" ng-options="c.staffGenderName for c in staffGender track by c.staffGenderID"></select>
+                        </div>
+                    </div>                
+            </div>
+                <div class="form-group">
+                     <div class="row">
+                        <div class="col-md-3">
+                            <label>Mã nhân viên:</label> 
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="staff_code" class="form-control" ng-model="newItem.staff_code" ">
+                            <span class="red" ng-show="errStaffCodeExist">Mã nhân viên đã tồn tại. Vui lòng nhập lại</span>
+                        </div>
+                    </div>                                             
+                </div>
+                <div class="form-group">
+                     <div class="row">
+                        <div class="col-md-3">
+                            <label>Tên đăng nhập:<span style="color: red; font-style: italic;">*</span></label> 
+                        </div>
+                        <div class="col-md-9">
+                            <input id="focusElement" type="text" name="staff_acn" class="form-control" ng-model="newItem.account" ng-maxlength="50" ng-required="true" autofocus>
+                            <span class="red" ng-show="errStaffCodeExist">Tên đăng nhập đã tồn tại. Vui lòng nhập lại</span>
+                        </div>
+                    </div>                                             
+                </div>
+            <div class="form-group">
+                     <div class="row">
+                        <div class="col-md-3">
+                            <label>Mật mã:<span style="color: red; font-style: italic;">*</span></label> 
+                        </div>
+                        <div class="col-md-9">
+                             <input type="password" name="staff_psw" class="form-control" ng-model="newItem.psw" ng-required="true" />
+                            <span class="red" ng-show="errStaffPSWinvalid">Mật mã không hợp lệ, vui lòng nhập lại</span>
+                        </div>
+                    </div>                                             
+                </div>
+            <div class="form-group">
+                     <div class="row">
+                        <div class="col-md-3">
+                            <label>Nhập lại mật mã:<span style="color: red; font-style: italic;">*</span></label> 
+                        </div>
+                        <div class="col-md-9">
+                            <div>
+                             <input type="password" name="staff_confirm_psw" ng-model="newItem.staff_confirm_psw" ng-blur="onBlur($event)" ng-required="true"/>
+                              <span class="red" ng-show="errNotMatchPsw">Không trùng, vui lòng nhập lại</span>
+                            </div>
+                        </div>
+                    </div>                                             
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Nhóm: <span style="color: red; font-style: italic;">*</span></label>  
+                        </div>
+                        <div class="col-md-9">
+                            <select ng-options="staff as staff.label for staff in staffsPriList track by staff.label" ng-model="newItem.priority_selected" name="priority_selected" ng-required="true" required></select>
+                        </div>
+                    </div>                
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Trạng thái:<span style="color: red; font-style: italic;">*</span></label> 
+                        </div>
+                        <div class="col-md-9">
+                            <select ng-model="newItem.status_selected" name="status_selected" ng-options="c.itemStatusName for c in itemStatus track by c.itemStatusID" ng-required="true" ></select>
+                        </div>
+                    </div>                
+                </div>
+                <div class="form-group">
+                  <div class="row">
+                      <div class="col-md-3">
+                          <label>Hình ảnh:</span></label> 
+                      </div>
+                      <div class="col-md-9">
+                          <!-- <input type="file" name="pic" accept="image/*"> -->
+                          <input id="addUploadFile"type="file" ngf-select ng-model="picFile" name="file" accept="image/*" ngf-max-size="1MB" 
+                                  ngf-model-invalid="errorFile">
+                          <span class="red" ng-show="addForm.file.$invalid && (submitClicked)">Hình ảnh không hợp lệ, vui lòng chọn hình ảnh</span>
+                          <!-- <i ng-show="myForm.file.$error.required">*required</i><br>
+                          <i ng-show="addForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 2M</i> -->
+                      </div>
+                  </div>                
+              </div>
+             
+            
+            </div>
+            
+            <div class="modal-footer form-group">
+              <div class="row">
+                  
+                <div class="col-md-5"><p style="color:red; font-style: italic; margin-top:5px;">(*)Cần cập nhật thông tin đầy đủ</p>
+                <div data-ng-show="showSecret"><p style="color:red; font-style: italic; margin-top:5px;">{{txtAlert}}</p></div>
+              </div>
+               
+                  <div class="col-md-7">
+                      <button class="btn btn-primary" type="submit" ng-click="ok(picFile)" ng-disabled="clicked">Lưu</button>
+                      <button class="btn btn-warning" type="button" ng-click="cancel()">Đóng</button>
+                  </div>
+              </div>
+          </div>
+
+            
+        </form>
+    </script>
+
+
+
+    <div id="myModal" class="modal">
+        <span class="close">×</span>
+        <img class="modal-content" id="img01">
+        <div id="caption"></div>
+    </div>
+
+</div>
+<!-- </div> -->
+
+<script type="text/ng-template" id="PopupEditStaff.html">
+            <form name="editForm">
+                <div class="modal-header">
+                    <h3 class="modal-title">Cập nhật thông tin nhân viên</h3>
+                </div>
+                <div class="modal-body">
+                      <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Tên đăng nhập:</label> 
+                                    </div>
+                                    <div class="col-md-9">
+                                    <span>{{item.account}}</span>
+                                        
+                                    </div>
+                                </div>  
+                        </div>
+              <!--
+                        <div class="form-group">
+                            <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Mật mã:<span style="color: red; font-style: italic;">*</span></label> 
+                                    </div>
+                                    <div class="col-md-9">
+                                    <input type="radio" ng-model="doCheck" name="register"
+                                                    id="radio_not_change_psw" ng-value="true" ng-change='changeValue(doCheck)' checked/>Giữ nguyên</br>
+                                    <input type="radio" ng-model="doCheck" name="register"
+                                                    id="radio_do_change_psw" ng-value="false" />Thay đổi</br>
+                                    </div>    
+                            </div>
+                        </div>
+                
+                        <div class="form-group">
+                                <div class="row">
+                                       <div class="col-md-3">
+                                           <label>Mật mã mới:<span style="color: red; font-style: italic;">*</span></label> 
+                                       </div>
+                                       <div class="col-md-9">
+                                           <input type="password" ng-disabled="doCheck" id="login-password"
+                                                    name="psw" ng-model="item.psw" ng-maxlength="24" ng-required="!doCheck"/>
+                                           <span class="red" ng-show="errStaffPSWinvalid">Mật mã không hợp lệ, vui lòng nhập lại</span>
+                                       </div>
+                                </div>                                             
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Nhập lại:<span style="color: red; font-style: italic;">*</span></label> 
+                                </div>
+                                <div class="col-md-9">
+                                    <div>
+                                        <input type="password" ng-disabled="doCheck" id="login-password-retype"
+                                        ng-maxlength="24" ng-model="item.psw_retype" ng-blur="onBlur($event)"  ng-required="!doCheck"/>
+                                        <span class="red" ng-show="errMatch">Không trùng, vui lòng nhập lại</span>
+                                    </div>
+                                </div>
+                            </div>                                             
+                        </div>
+                -->
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Mã nhân viên:</label> 
+                                </div>
+                                <div class="col-md-9">
+                                    <input type="text" name="staff_code" class="form-control" ng-model="item.staff_code" autofocus>
+                                    <span class="red" ng-show="errItemCodeExist">Mã nhân viên đã tồn tại. Vui lòng nhập lại</span>
+                                </div>
+                            </div>     
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Tên nhân viên:</label> 
+                                </div>
+                        
+                                <div class="col-md-9">
+                                    <input type="text" name="staff_name" class="form-control" ng-model="item.staff_name"  ng-maxlength="50" ng-keydown="typingItemName()">
+                                    <span class="red" ng-show="editForm.item_name.$invalid && (editForm.item_name.$touched || submitClicked)">Tên nhân viên không được bỏ trống. Chỉ cho phép nhập tối đa 50 ký tự, vui lòng nhập lại</span>
+                                    <span class="red" ng-show="errItemNameExist">Tên nhân viên đã tồn tại. Vui lòng nhập lại</span>
+                                </div>
+                            </div>
+                        </div>
+        <!--
+                        <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Giới tính:</label> 
+                                    </div>
+                                    <div class="col-md-9">
+                                        <select id="genderSelect" ng-model="item.gender_selected" name="gender_name" ng-options="c.staffGenderName for c in staffGender track by c.staffGenderID"></select>
+                                    </div>
+                                </div>   
+                        </div>
+       
+               
+             -->
+                     <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Chức vụ:</label> 
+                                </div>
+                        
+                                <div class="col-md-9">
+                                    <!-- <input type="text" name="staff_level" class="form-control" ng-model="item.staff_level"  ng-maxlength="50" ng-keydown="typingItemName()"> -->
+                                    <select  id= "roleSelect" ng-model="item.staff_level_selected" name = "level_name" ng-options="c.label for c in tempList track by c.id"></select>
+                                </div>
+                            </div>
+                        </div>
+                <!--
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Trạng thái: <span style="color: red; font-style: italic;">*</span></label>  
+                            </div>
+                            <div class="col-md-9">
+                                 <select id="statusSelect"  ng-model="item.status_selected"  ng-options="c.itemStatusName for c in itemStatus track by c.itemStatusID"></select>
+                            </div>
+                        </div> 
+                    </div>
+            -->
+                    <div class="form-group">
+                  <div class="row">
+                      <div class="col-md-4">
+                          <label>Hình ảnh hiện tại:</label> 
+                      </div>
+
+                      <div class="col-md-3">
+                          <img
+                            ngf-src="item.staff_img"
+                            ngf-resize="{width: 10, height: 10, quality: 0.9}" 
+                            ngf-no-object-url="true or false" 
+                            style="width:60px; height:45px;">
+                      </div>                   
+                  </div>                
+              </div>
+              <div class="form-group">
+                  <div class="row">
+                      <div class="col-md-3">
+                          <label>Tải lên ảnh mới:</label> 
+                      </div>
+                      <div class="col-md-6">
+                          <input type="file" ngf-select name="imgEdit" accept="image/*" ng-model="picFile1" custom-on-change="fileSelected">
+                      </div>
+                  </div>                
+              </div> 
+      
+                </div>
+         <div class="modal-footer form-group">
+              <div class="row">
+                  <div class="col-md-5"><p style="color:red; font-style: italic; margin-top:5px;">(*)Cần cập nhật thông tin đầy đủ</p>
+                   <div data-ng-show="showSecret"><p style="color:red; font-style: italic; margin-top:5px;">{{txtAlert}}</p></div>
+                  </div>
+                 
+                  <div class="col-md-7">
+                      <button class="btn btn-primary" type="submit" ng-click="ok(picFile1)" ng-disabled="clicked">Lưu</button>
+                      <button class="btn btn-warning" type="button" ng-click="cancel()">Đóng</button>
+                  </div>
+              </div>
+          </div>
+              
+            </form>
+</script>
+
+<script type="text/ng-template" id="PopUpUpdateStaffStatus.html">
+            <form name="updateForm">
+                <div class="modal-header">
+                    <h3 class="modal-title">Cập nhật thông tin tài khoản</h3>
+                </div>
+                <div class="modal-body">
+                      <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Tên đăng nhập:</label> 
+                                    </div>
+                                    <div class="col-md-9">
+                                    <span>{{item.account}}</span>
+                                        
+                                    </div>
+                                </div>  
+                        </div>
+              
+                      
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Trạng thái: <span style="color: red; font-style: italic;">*</span></label>  
+                            </div>
+                            <div class="col-md-9">
+                                 <select id="statusSelect"  ng-model="item.status_selected"  ng-options="c.itemStatusName for c in itemStatus track by c.itemStatusID"></select>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="form-group">
+                 
+                </div>
+         <div class="modal-footer form-group">
+              <div class="row">
+                  <div class="col-md-5"><p style="color:red; font-style: italic; margin-top:5px;">(*)Cần cập nhật thông tin đầy đủ</p>
+                   <div data-ng-show="showSecret"><p style="color:red; font-style: italic; margin-top:5px;">{{txtAlert}}</p></div>
+                  </div>
+                 
+                  <div class="col-md-7">
+                      <button class="btn btn-primary" type="submit" ng-click="ok(picFile1)" ng-disabled="clicked">Lưu</button>
+                      <button class="btn btn-warning" type="button" ng-click="cancel()">Đóng</button>
+                  </div>
+              </div>
+          </div>
+              
+            </form>
+</script>

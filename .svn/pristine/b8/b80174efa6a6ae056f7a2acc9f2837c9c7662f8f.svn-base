@@ -1,0 +1,41 @@
+<div class="center_vertical">
+    <div class="login_wrapper">
+        <div class="animate form login_form ">
+            <section class="login_content">
+                <form name="resetPasssword">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Kích hoạt mật khẩu mới</h3>
+                    </div>
+                    <div class="modal-body">                         
+                        <div class="form-group" ng-class = "{'has-error' : resetPasssword.n_pass.$invalid && (submitClicked)}">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="password" class="form-control" placeholder="Nhập mật khẩu mới" name="n_pass" ng-model="n_pass" ng-maxlength="32" ng-minlength="6" ng-required="true">
+                                    <span class="red" ng-show="resetPasssword.n_pass.$invalid && (submitClicked)">(*) Mật khẩu tối thiểu 6 kí tự, tối đa 32 kí tự.</span>
+                                </div>
+                            </div>                                             
+                        </div>            
+                        <div class="form-group" ng-class = "{'has-error' : isCheckConfirmPass && (submitClicked)}">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="password" class="form-control" placeholder="Xác nhận mật khẩu mới" name="confirm_n_pass" ng-model="confirm_n_pass" ng-required="true">
+                                    <span class="red" ng-show="isCheckConfirmPass">(*) Mật khẩu không khớp. Vui lòng nhập lại.</span>
+                                </div>
+                            </div>                                             
+                        </div>    
+                        <div class = "form-group">
+                            <div class="row">                            
+                                <div class="col-md-12 col-xs-12 col-sm-12" style="text-align: center;">
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-success btnblue form-control" ng-click="active()">Kích hoạt</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                    <div class="clearfix"></div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>

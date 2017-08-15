@@ -1,0 +1,265 @@
+/* global posConfig, API_URL, UPLOAD_URL, RESOURCE_URL */
+
+var theApp = angular.module('theApp', ['ngRoute', 'ngCookies', 'smart-table', 'ui.bootstrap', 'ngFileUpload', 'angular-confirm', 'ngMaterial', 'bootstrapLightbox', 'angularjs-dropdown-multiselect']);
+
+theApp.constant('API_URL', API_URL); //define CONST API_URL
+theApp.constant('UPLOAD_URL', UPLOAD_URL); //define CONST API_URL
+theApp.constant('RESOURCE_URL', RESOURCE_URL);
+
+(function () {
+    'use strict';
+
+
+    theApp
+            .config(config)
+            .run(run);
+
+    config.$inject = ['$routeProvider', '$locationProvider', '$httpProvider'];
+    function config($routeProvider, $locationProvider, $httpProvider) {
+        $routeProvider
+                .when('/', {
+                    controller: 'DashboardController',
+                    templateUrl: 'dashboard/dashboard.view.html?v=' + posConfig.TEMPLATE_DASHBOARD_VERSION
+                })
+                .when('/dashboard/', {
+                    controller: 'DashboardController',
+                    templateUrl: 'dashboard/dashboard.view.html?v=' + posConfig.TEMPLATE_DASHBOARD_VERSION
+                })
+                .when('/logtrans/', {
+                    controller: 'LogTransactionController',
+                    templateUrl: 'log_transactions/logtransaction.view.html?v=' + posConfig.TEMPLATE_TRANSACTION_VERSION
+                })
+                .when('/login', {
+                    controller: 'LoginController',
+                    templateUrl: 'login/login.view.html?v=' + posConfig.TEMPLATE_LOGIN_VERSION
+                })
+                .when('/reportbymonth/', {
+                    controller: 'ReportByMonthController',
+                    templateUrl: 'report/report_by_month.view.html?v=' + posConfig.TEMPLATE_REPORT_BY_MONTH_VERSION
+                })
+                .when('/reportbydate/', {
+                    controller: 'ReportByDateController',
+                    templateUrl: 'report/report_by_date.view.html?v=' + posConfig.TEMPLATE_REPORT_BY_DATE_VERSION
+                })
+                .otherwise({redirectTo: '/'});
+
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
+    }
+
+    run.$inject = ['$rootScope', '$cookies', '$location', '$window'];
+    function run($rootScope, $cookies, $location, $window) {
+        $rootScope.globals = {currentUser: {}};
+
+        $rootScope.itemStatus = [
+            {
+                itemStatusID: 1, itemStatusName: "Hoạt động", itemColor: "black"
+            },
+            {
+                itemStatusID: 0, itemStatusName: "Ngưng hoạt động", itemColor: "red"
+            }
+        ];
+
+        $rootScope.cateStatus = [
+            {
+                cateStatusID: 1, cateStatusName: "Hiện", cateColor: "black"
+            },
+            {
+                cateStatusID: 0, cateStatusName: "Ẩn", cateColor: "red"
+            }
+        ];
+
+        $rootScope.staffGender = [
+            {
+                staffGenderID: 1, staffGenderName: "Nam", itemColor: "black"
+            },
+            {
+                staffGenderID: 0, staffGenderName: "Nữ", itemColor: "red"
+            },
+            {
+                staffGenderID: 2, staffGenderName: "Khác", itemColor: "white"
+            }
+        ];
+
+        $rootScope.globals.staffsRole = [
+            {
+                id: 1, label: "Admin", itemColor: "black"
+            },
+            {
+                id: 0, label: "Kế toán", itemColor: "red"
+            },
+            {
+                id: 2, label: "Nhân viên", itemColor: "white"
+            }
+        ];
+
+        $rootScope.staffsPriList = [
+            {
+                id: 1, label: 'Quản trị hệ thống'
+            },
+            {
+                id: 2, label: 'Nhân viên bán hàng'
+            }
+        ];
+
+        $rootScope.tranStatus = [          
+            {
+                tranStatusID: 1,
+                tranStatusName: 'Thành công'
+            },
+            {
+                tranStatusID: 0,
+                tranStatusName: 'Thất bại'
+            }
+        ];
+        $rootScope.paymentMethod = [
+            {
+                paymentMethodID: 1,
+                paymentMethodName: 'Zalo pay'
+            },
+            {
+                paymentMethodID: 2,
+                paymentMethodName: 'Thẻ thành viên'
+            },
+            {
+                paymentMethodID: 4,
+                paymentMethodName: 'Tiền mặt'
+            }
+        ];
+        $rootScope.promotionStatus = [
+            {
+                promotionStatusID: 0, promotionStatusName: "Kết thúc", promotionColor: "black"
+            },
+            {
+                promotionStatusID: 1, promotionStatusName: "Đang chạy", promotionColor: "red"
+            }
+        ];
+
+        $rootScope.promotionTypeDisplay = {
+            1: {promotionTypeID: 1, promotionTypeName: 'VNĐ', promotionTypeColor: "purple"},
+            2: {promotionTypeID: 2, promotionTypeName: '% sản phẩm', promotionTypeColor: "blue"},
+            3: {promotionTypeID: 3, promotionTypeName: '% tổng hóa đơn', promotionTypeColor: "green"}
+        };
+
+
+        $rootScope.globals.auditStatus = {
+            0: {auditStatusName: '', itemColor: "black"},
+            1: {auditStatusName: 'Đối soát thành công', itemColor: "black"},
+            2: {auditStatusName: 'Đã đối soát', itemColor: "orange"},
+            3: {auditStatusName: 'Chờ thanh toán', itemColor: "red"},
+            4: {auditStatusName: 'Hóa đã hủy', itemColor: "red"},
+            5: {auditStatusName: 'Lỗi', itemColor: "red"}
+
+        };
+
+        if (localStorage.newtabInfo) {
+            var newtabInfo = JSON.parse(localStorage.newtabInfo);
+            $cookies.put('u', newtabInfo.u);
+            $cookies.put('merchantName', newtabInfo.merchantName);
+            $cookies.put('merchantCode', newtabInfo.merchantCode);
+            localStorage.removeItem("newtabInfo");
+        }
+        $rootScope.app_user = ($cookies.get('app_user') !== undefined ? $cookies.get('app_user') : "");
+        $rootScope.app_id = ($cookies.get('app_id') !== undefined ? $cookies.get('app_id') : "");
+        $rootScope.globals.currentUser.username = ($cookies.get('u') !== undefined ? $cookies.get('u') : "");
+
+
+        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+            // redirect to login page if not logged in and trying to access a restricted page
+            var restrictedPage = $.inArray($location.path(), ['/login']) === -1;
+            var loggedIn = ($rootScope.globals.currentUser.username !== "" && $rootScope.app_id !== "");
+
+            $rootScope.menuItemList = [
+                {
+                    index: 0,
+                    title: "Tổng quan",
+                    icon: "fa fa-dashboard",
+                    value: 1201,
+                    bshow: true,
+                    link: "#dashboard",
+                    submenu: []
+                },
+                {
+                    index: 2,
+                    title: "Giao dịch",
+                    icon: "fa fa-list-alt",
+                    value: 1203,
+                    bshow: true,
+                    link: "####",
+                    submenu: [
+                        {
+                            index: 20,
+                            bshow: true,
+                            title: "Nhật ký giao dịch",
+                            icon: "",
+                            link: "#logtrans"
+                        }
+                    ]
+                },
+                {
+                    index: 3,
+                    title: "Thống kê",
+                    value: 1204,
+                    bshow: true,
+                    icon: "fa fa-bar-chart",
+                    link: "####",
+                    submenu: [
+                        {
+                            index: 30,
+                            bshow: true,
+                            title: "Thống kê theo ngày",
+                            icon: "",
+                            value: 1204,
+                            link: "#reportbydate"
+                        },
+                        {
+                            index: 31,
+                            bshow: true,
+                            title: "Thống kê theo tháng",
+                            icon: "",
+                            link: "#reportbymonth"
+                        }
+                    ]
+                }
+            ];
+        });
+    }
+    ;
+
+
+    theApp.directive('currencyInput', function ($filter, $browser) {
+        return {
+            require: 'ngModel',
+            link: function ($scope, $element, $attrs, ngModelCtrl) {
+                var listener = function () {
+                    var value = $element.val().replace(/,/g, '');
+                    $element.val($filter('number')(value, false));
+                };
+
+                // This runs when we update the text field
+                ngModelCtrl.$parsers.push(function (viewValue) {
+                    return viewValue.replace(/,/g, '');
+                });
+
+                // This runs when the model gets updated on the scope directly and keeps our view in sync
+                ngModelCtrl.$render = function () {
+                    $element.val($filter('number')(ngModelCtrl.$viewValue, false));
+                };
+
+                $element.bind('change', listener);
+                $element.bind('keydown', function (event) {
+                    var key = event.keyCode;
+                    // If the keys include the CTRL, SHIFT, ALT, or META keys, or the arrow keys, do nothing.
+                    // This lets us support copy and paste too
+                    if (key === 91 || (15 < key && key < 19) || (37 <= key && key <= 40))
+                        return;
+                    $browser.defer(listener); // Have to do this or changes don't get picked up properly
+                });
+
+                $element.bind('paste cut', function () {
+                    $browser.defer(listener);
+                });
+            }
+        };
+    });
+})();

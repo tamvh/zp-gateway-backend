@@ -1,0 +1,161 @@
+<div id="wrapper">
+  <div class="container body">
+    <div class="main_container">
+        <div ng-include src="'sidebar/sidebar.view.html'"></div> 
+        <!-- top -->
+        <div ng-include src="'header/header.view.html'"></div> 
+        <!-- main content -->
+        <div class="right_col" role="main">
+            <div class="">
+              <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                  <div class="x_panel ">
+                     <div class="row x_title my_title_page">
+                      <div class="col-md-4 col-sm-4 col-xs-4 ">
+                      </div>                       
+                      <div class="col-md-3 col-xs-3 col-xs-3 col-md-offset-5 col-xs-offset-5 col-sm-offset-5" style="margin-top: 5px;" >
+                        <div class='input-group date datepicker' id="date" data-date-format="dd-mm-yyyy" ng-required="false" >
+                          <input type='text' class="form-control"/>
+                          <span class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                          </span>
+                        </div>
+                      </div>
+                    </div> 
+                    <div class="x_content">                     
+                      <br>
+                      <div class="row">                        
+                        <div class="col-sm-4">
+                          <div class="panel panel-green">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div style="height: 120px;">
+                                        <div class="col-xs-1">
+                                            <i class="fa fa-dollar fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-11 text-right" style="margin-bottom: 6px">
+                                            <div class = "row">
+                                                <div class="huge" ng-model="listSummary.total_amount_zalopay_success">{{ listSummary.total_amount_zalopay_success | currency:"":0 }}</div>
+                                                <div style="font-size: 18px;">Tổng doanh thu trong ngày (VNĐ)</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class = "col-sm-8">
+                                                    Doanh thu từ Zalo Pay:
+                                                </div>
+                                                <div class = "col-sm-4 text-right" ng-model="listSummary.total_amount_zalopay_success">
+                                                    {{ listSummary.total_amount_zalopay_success | currency:"":0 }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
+                            <div>
+                                <a ng-click="changePage()">
+                                  <div class="panel-footer " style="background: #4a9e45; color: white;">
+                                      <span class="pull-left">Xem chi tiết nhật ký giao dịch</span>
+                                      <span class="pull-right"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                      <div class="clearfix"></div>
+                                  </div>
+                              </a> 
+                            </div>                       
+                          </div>                            
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel panel-red" style="background: #d95854;">
+                                <div class="panel-heading" >
+                                    <div style="height: 120px;">
+                                        <div class="row">
+                                            <div class="col-xs-1">
+                                                <i class="fa fa-shopping-cart fa-5x"></i>
+                                            </div>
+                                            <div class="col-xs-11 text-right">
+                                                <div class="huge" ng-model="listSummary.total_invoice_zalopay_success">{{ listSummary.total_invoice_zalopay_success }}</div>
+                                                <div style="font-size: 18px;">Tổng số hóa đơn</div>
+                                            </div>
+                                        </div>
+                                    </div>                                  
+                                </div>
+                                <a ng-click="changePage()">
+                                    <div class="panel-footer" style="background: #c53939; color: white;">
+                                          <span class="pull-left">Xem chi tiết nhật ký giao dịch</span>
+                                          <span class="pull-right"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                          <div class="clearfix"></div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">                            
+                            <div class="panel panel-purple" style="background: #d95854;">
+                                <div class="panel-heading" >
+                                  <div class="row">
+                                      <div style="height: 120px;">
+                                        <div class="col-xs-1">
+                                            <i class="fa fa-user fa-5x"></i>
+                                        </div>
+                                        <div class="col-xs-11 text-right">
+                                            <div class="huge" ng-model="listSummary.total_user_zalopay_success">{{ listSummary.total_user_zalopay_success }}</div>
+                                            <div style="font-size: 18px;">Tổng số người thanh toán qua ZaloPay</div>
+                                        </div>
+                                      </div>                                      
+                                  </div>
+                                </div>
+                                <a ng-click="changePage()">
+                                <div class="panel-footer" style="background: #8E44AD; color: white;">
+                                      <span class="pull-left">Xem chi tiết nhật ký giao dịch</span>
+                                      <span class="pull-right"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                      <div class="clearfix"></div>
+                                </div>
+                                </a>
+                              </div>
+                        </div>
+                      </div>                                                          
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>                      
+	    
+	    
+            
+	</div> 
+    </div>        
+  </div>    
+</div>
+<script type="text/javascript">
+    // $(function () {
+    //     $('#fromdate').datetimepicker();
+    // });
+
+    var toDay = new Date();
+    $("#date").datepicker({ 
+        autoclose: true, 
+        todayHighlight: true,
+        viewMode: "days", 
+        minViewMode: "days"
+    }).datepicker('update', toDay)
+    //})
+    .on ('clearDate', function(e) {
+        console.log("clear date");
+        var date = "";
+        var myScope = angular.element(document.getElementById('wrapper')).scope();
+        myScope.date = "";
+    })
+    .on('changeDate', function(e) {
+        //var currDate = new Date(e.date);
+        //var dateString = currDate.getFullYear() + "-" + (currDate.getMonth() +1) + "-" + currDate.getDate();
+        console.log("change date");
+        console.log(e.date);
+        var dateValue = new Date(e.date);
+        var myScope = angular.element(document.getElementById('wrapper')).scope();
+        // if (fromDateValue > myScope.toDate) {
+        //     $("#fromdate").datepicker('setDate', myScope.fromDate);
+        //     return;
+        // } else if (fromDateValue === myScope.fromDate) {
+        //     return;
+        // }
+
+        myScope.date = dateValue;
+        myScope.getSummary();
+    });
+</script>

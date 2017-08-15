@@ -1,0 +1,97 @@
+(function () {
+    'use strict';
+    
+    theApp
+        .controller('VerifyInvoiceController', VerifyInvoiceController);
+
+    VerifyInvoiceController.$inject = ['$location','$scope', 'LoginService','VerifyInvoiceService', '$rootScope', '$filter', '$mdDialog'];
+    function VerifyInvoiceController($location,$scope, LoginService,VerifyInvoiceService, $rootScope, $filter, $mdDialog) {        
+//        if(!LoginService.isLogined()){
+//            //alert("Đăng nhập trước khi sử dụng");
+//            $location.path("/login");
+//            return ;
+//        }
+        $scope.fromDate = new Date();
+        $scope.fromDate.setDate($scope.fromDate.getDate() - 1);
+        $scope.toDate = new Date();
+        
+        $scope.isVerify = false;
+        $scope.invoice = null;
+        $scope.status = false;
+        angular.element("#txtBarCode").focus();
+        
+        $scope.showAlert = function(ev) {
+            $mdDialog.show(
+              $mdDialog.alert()
+                .parent(angular.element(document.querySelector('#popupContainer')))
+                .clickOutsideToClose(true)
+                .title('Thông báo')
+                .textContent(ev)
+                .ariaLabel('Alert Dialog Demo')
+                .ok('OK')
+                .targetEvent(ev)
+            ).then(function (){
+               angular.element("#txtBarCode").focus();
+            });
+        };
+        
+        $scope.keypress = function ($event){          
+            if(($event.which || $event.keyCode) == 13){
+                $scope.verifyInvoice($scope.txtBarCode);
+                
+            }
+            $scope.isVerify = false;
+                
+        }
+        
+        $scope.DisplayStauts = function (index){
+            var status = "";
+            if(index ==  undefined)
+                return status;
+            
+            var selected = [];        
+            
+            selected = $filter('filter')($rootScope.tranStatus, {tranStatusID: index});
+            if(selected.length > 0){
+                status = selected[0].tranStatusName;
+            }
+            
+            return status;
+        }
+        
+        $scope.verifyInvoice  = function (invoiceBarCode){
+            $scope.invoice = null;            
+            $scope.status = false;
+            if(invoiceBarCode == undefined || !(invoiceBarCode.length == 12 || invoiceBarCode.length == 10)){                
+                $scope.showAlert("Barcode không hợp lệ");                
+                return;
+            }
+            
+            var strdateFrom  =  $scope.fromDate.getFullYear() + "-" + ($scope.fromDate.getMonth()+1) + "-" + $scope.fromDate.getDate();
+            var strdateTo  =  $scope.toDate.getFullYear() + "-" + ($scope.toDate.getMonth()+1) + "-" + $scope.toDate.getDate();
+            
+            VerifyInvoiceService.verifyInvoice(invoiceBarCode, strdateFrom, strdateTo).then(function (respons){                
+                
+                if(respons.err === 0){
+                    $scope.isVerify = true;
+                    if(respons.dt.status === true){
+                        $scope.status = true;
+                        $scope.invoice = respons.dt.invoice;
+                        $scope.txtBarCode = "";
+                        angular.element("#txtBarCode").focus();
+                    }else{
+                        $scope.status = false;                       
+                    }
+                    
+                } else if (respons.err === 101) {      // has not logged in
+                    $location.path('/login');
+                } else{
+                      console.log(respons.msg);
+                }
+            });
+        }
+        
+        
+    }
+    
+})();

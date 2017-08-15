@@ -1,0 +1,20 @@
+(function () {
+    'use strict';
+    
+    theApp
+        .controller('UserController', UserController);
+    
+    UserController.$inject = ['$scope', 'UserService','LoginService'];
+    function UserController($scope, UserService, LoginService) {
+//        if(!LoginService.isLogined()){
+//            //alert("Đăng nhập trước khi sử dụng");
+//            $location.path("/login");
+//            return ;
+//        }
+        $scope.addUser = addUser;
+        
+        function addUser() {
+        }
+    }
+    
+})();

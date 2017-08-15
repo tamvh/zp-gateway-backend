@@ -1,0 +1,34 @@
+<div class="center_vertical">
+  <div class="login_wrapper">
+    <div class="animate form login_form ">
+      <section class="login_content">
+        <form id="frm-login" action="https://sso3.zing.vn/xlogin" method="post" enctype="application/x-www-form-urlencoded">
+          <h1>Đăng nhập</h1>
+          <input type="hidden" id="u1" name="u1" value="{{login_url_succ}}" />
+          <input type="hidden" name="fp" id="fp" value="{{login_url_fail}}" />                            
+          <input type="hidden" name="pid" value="296" />
+          <input type="hidden" name="apikey" value="b8ac2ec3bd1b4e75a3c945b8496e1c36" />
+
+              <div class="form-group" ng-class="{ 'has-error': form.username.$dirty && form.username.$error.required }">
+                  <span style="color:red;" ng-show="form.username.$dirty && form.username.$error.required" class="help-block">Yêu cầu nhập tên đăng nhập</span>
+                  <!-- <label for="username">Tên đăng nhập</label> -->
+                  <input type="text"  id="u" name="u" placeholder="Nhập tên đăng nhập" class="form-control" ng-model="vm.username" required />
+                  
+              </div>
+              <div class="form-group" ng-class="{ 'has-error': form.password.$dirty && form.password.$error.required }">
+                  <span style="color:red;" ng-show="form.password.$dirty && form.password.$error.required" class="help-block">Yêu cầu nhập mật khẩu</span>
+                  <!-- <label for="password">Mật khẩu</label> -->
+                  <input type="password"  id="p" name="p"  placeholder="Nhập mật khẩu" class="form-control" ng-model="vm.password" required />
+                 
+              </div>
+              <div class="form-actions">
+                  <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-success btnblue form-control" id="btn-login">Đăng nhập</button>
+                 
+              </div>
+               <div class="clearfix"></div>
+          </form>
+      </section>
+    </div>
+  </div>
+</div>
+  

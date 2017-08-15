@@ -1,0 +1,140 @@
+(function() {
+    'use strict';
+
+    theApp
+            .controller('ReportByItemController', ReportByItemController);
+
+    ReportByItemController.$inject = ['$scope', 'ReportService', '$rootScope', '$location', 'LoginService', '$uibModal'];
+    function ReportByItemController($scope, ReportService, $rootScope, $location, LoginService, $uibModal) {
+
+//        if(!LoginService.isLogined()){
+//            //alert("Đăng nhập trước khi sử dụng");
+//            $location.path("/login");
+//            return ;
+//        }
+        if ($location.search().byday) {
+            $scope.fromDate = new Date($location.search().byday);
+            $scope.toDate = new Date($location.search().byday);
+        }
+        else {
+            $scope.fromDate = new Date();
+            $scope.toDate = new Date();
+        }
+
+        $scope.searchInfo = "";
+
+        //$scope.paymentSttSelectedID = 2;
+        $scope.totalTransPerPage = 50;
+        $scope.totalTransPerPageList = [10, 30, 50, 100];
+        $scope.currentPage = 1;
+        $scope.maxSize = 10;
+
+        $scope.listSummary = [];
+
+
+        $scope.loadTransOfPage = function(currentPage, totalTransPerPage) {
+
+            var fromDate = "";
+            var toDate = "";
+            var itemName = $scope.searchInfo;
+
+
+            if ($scope.fromDate !== "") {
+                fromDate = $scope.fromDate.getFullYear() + "-" + ($scope.fromDate.getMonth() + 1) + "-" + $scope.fromDate.getDate();
+            }
+
+            if ($scope.toDate !== "") {
+                toDate = $scope.toDate.getFullYear() + "-" + ($scope.toDate.getMonth() + 1) + "-" + $scope.toDate.getDate();
+            }
+
+            ReportService.getReportByItemOfPage(itemName, fromDate, toDate, currentPage, totalTransPerPage)
+                    .then(function(response) {
+                        if (response.err == 0) {
+                            $scope.currentPage = currentPage;
+                            $scope.transDisplayed = response.dt.listData;
+                            $scope.dataSummary = response.dt.dataSummary;
+                            $scope.totalTransactions = response.dt.dataSummary.total_record;
+
+                        } else if (response.err === 101) {      // has not logged in
+                            $location.path('/login');
+                        } else {
+                            console.log(response.msg);
+                        }
+
+                    });
+        };
+
+        $scope.loadTransOfPage($scope.currentPage, $scope.totalTransPerPage);
+
+        $scope.loadPageChoose = function(currentPage, totalTransPerPage) {
+
+            var fromDate = "";
+            var toDate = "";
+            var itemName = $scope.searchInfo;
+            if ($scope.fromDate !== "") {
+                fromDate = $scope.fromDate.getFullYear() + "-" + ($scope.fromDate.getMonth() + 1) + "-" + $scope.fromDate.getDate();
+            }
+
+            if ($scope.toDate !== "")
+                toDate = $scope.toDate.getFullYear() + "-" + ($scope.toDate.getMonth() + 1) + "-" + $scope.toDate.getDate();
+
+            ReportService.getReportByItemOfPage(itemName, fromDate, toDate, currentPage, totalTransPerPage)
+                    .then(function(response) {
+                        if (response.err == 0) {
+                            $scope.currentPage = currentPage;
+                            $scope.transDisplayed = response.dt.listData;
+                            $scope.dataSummary = response.dt.dataSummary;
+                            $scope.totalTransactions = response.dt.dataSummary.total_record;
+
+                        } else if (response.err === 101) {      // has not logged in
+                            $location.path('/login');
+                        } else {
+                            console.log(response.msg);
+                        }
+
+                    });
+        };
+
+        $scope.changePageSize = function(totalTransPerPage) {
+            $scope.currentPage = 1;
+            $scope.loadTransOfPage($scope.currentPage, totalTransPerPage);
+        }
+        $scope.showPaymentDate = function(index) {
+            return ($scope.transactions[index].payment_date_time);
+
+        }
+
+        $scope.exportExcel = function() {
+            var listDataToExport = [];
+            if ($scope.transDisplayed.length > 0) {
+                for (var i = 0; i < $scope.transDisplayed.length; i++)
+                {
+                    listDataToExport.push({
+                        "STT": i + 1,
+                        "Ngày": $scope.transDisplayed[i].payment_date,
+                        "Món ăn": $scope.transDisplayed[i].item_name,
+                        "Doanh thu (VNĐ)": $scope.transDisplayed[i].total_revenue,
+                        "Số lượng": $scope.transDisplayed[i].total_items
+                    });
+                }
+
+                var today = new Date();
+                var currentDate = moment(today).format('DD/MM/YYYY');
+                alasql('SELECT * INTO XLSX("ReportItems-' + currentDate + '.xlsx",{headers:true}) FROM ?', [listDataToExport]);
+            }
+            else{
+                alert("Không có dữ liệu");
+            }
+        }
+        /*
+         $scope.logout = function (){
+         LoginService.logout();
+         $location.path("/login");
+         }
+         */
+    }
+
+
+
+
+})();

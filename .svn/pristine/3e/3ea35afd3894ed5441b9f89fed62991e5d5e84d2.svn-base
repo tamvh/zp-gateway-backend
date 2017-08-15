@@ -1,0 +1,51 @@
+/* global theApp */
+
+(function () {
+    'use strict';    
+    theApp.controller('ResetPasswordController', ResetPasswordController);
+    ResetPasswordController.$inject = ['$location', '$scope', 'ResetPasswordService', 'LoginService', '$rootScope' ,'$window', '$routeParams', '$cookies','$mdDialog'];
+    function ResetPasswordController($location, $scope, ResetPasswordService, LoginService, $rootScope, $window, $routeParams, $cookies, $mdDialog) {                          
+        $scope.submitClicked = false;
+        $scope.isCheckConfirmPass = false;
+        var url = window.location.href;
+        
+        $scope.active = function() {
+            $scope.submitClicked = true;
+            var username = "";
+            var n_pass = $scope.n_pass;
+            var confirm_n_pass = $scope.confirm_n_pass;
+            if(confirm_n_pass !== n_pass) {
+                $scope.isCheckConfirmPass = true;
+                return;
+            }
+            
+            if(url.split('?').length > 0) {
+                username = url.split('?')[1].split('=')[1];
+                alert(username);
+            }
+            else {
+                alert("Kích hoạt mật khẩu thất bại.");
+                return;
+            }
+            
+            ResetPasswordService.resetPassword(username, n_pass)
+                    .then(function (response) {
+                        if (response.err === 0) {
+                            //Kich hoat mật khẩu thành công. 
+                            console.log("clear cookies");                            
+                            clearCoookies();
+                            $location.path('/dashboard');                       
+                        }
+                        else {
+                            alert("Kích hoạt mật khẩu thất bại.");
+                        }
+                    });
+        };
+        function clearCoookies (){
+            $rootScope.app_id = "";            
+            $rootScope.globals.currentUser.username = "";
+            $cookies.remove('app_id');
+            $cookies.remove('u'); 
+        }  
+    }
+})();

@@ -1,0 +1,21 @@
+/* global theApp */
+
+(function () {
+    'use strict';    
+    theApp.controller('ForgetPasswordController', ForgetPasswordController);
+    ForgetPasswordController.$inject = ['$location', '$scope', 'ForgetPasswordService', 'LoginService', '$rootScope' ,'$window', '$routeParams', '$cookies','$mdDialog'];
+    function ForgetPasswordController($location, $scope, ForgetPasswordService, LoginService, $rootScope, $window, $routeParams, $cookies, $mdDialog) {                          
+        $scope.isCheckConfirmPass = false;
+        $scope.submitClicked = false;
+        
+        $scope.reset = function() {
+            $scope.submitClicked = true;
+            var n_pass = $scope.n_pass;
+            var confirm_n_pass = $scope.confirm_n_pass;
+            if(confirm_n_pass !== n_pass) {
+                $scope.isCheckConfirmPass = true;
+                return;
+            }
+        };
+    }
+})();

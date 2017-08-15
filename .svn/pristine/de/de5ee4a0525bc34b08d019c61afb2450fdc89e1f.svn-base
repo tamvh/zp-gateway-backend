@@ -1,0 +1,49 @@
+/* global theApp */
+
+(function () {
+    'use strict';    
+    theApp.controller('LoginController', LoginController);
+    LoginController.$inject = ['$location', '$scope', 'LoginService', '$rootScope' ,'$window', '$routeParams', '$cookies','$mdDialog'];
+    function LoginController($location, $scope, LoginService, $rootScope, $window, $routeParams, $cookies, $mdDialog) {                          
+        $scope.login = function() {
+            console.log("========= clear cookies");
+            clearCoookies();
+            LoginService.login($scope.username, $scope.password)
+            .then(function (response) {
+                if (response.err === 0) {
+                    $rootScope.globals.currentUser.username = response.dt.account_name;  
+                    $rootScope.app_id = response.dt.app_id;
+                    $rootScope.app_user = response.dt.app_user;
+                    $cookies.put('u', $rootScope.globals.currentUser.username);
+                    $cookies.put('app_id', $rootScope.app_id);
+                    $cookies.put('app_user', $rootScope.app_user);
+                    $location.url($location.path());
+                    $location.path('/dashboard'); 
+                }else{
+                    $location.url($location.path());
+                    $scope.showAlert(response.msg);
+                    $location.path('/login');
+                }
+            });                    
+        };
+        $scope.showAlert = function(ev) {  
+                        $mdDialog.show(
+                          $mdDialog.alert()
+                            .parent(angular.element(document.querySelector('#popupContainer')))
+                            .clickOutsideToClose(true)
+                            .title('Thông báo')
+                            .textContent(ev)
+                            .ariaLabel('Alert Dialog Demo')
+                            .ok('OK')
+                            .targetEvent(ev)
+                        );
+        };
+        
+        function clearCoookies (){
+            $rootScope.app_id = "";            
+            $rootScope.globals.currentUser.username = "";
+            $cookies.remove('app_id');
+            $cookies.remove('u'); 
+        }  
+    }
+})();

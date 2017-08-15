@@ -1,0 +1,61 @@
+(function () {
+    'use strict';
+    
+    theApp
+        .controller('LoginController', LoginController);
+
+    LoginController.$inject = ['$location', '$scope', 'LoginService', '$rootScope' ,'$window', '$routeParams', '$cookies','$mdDialog'];
+    function LoginController($location, $scope, LoginService, $rootScope, $window, $routeParams, $cookies, $mdDialog) {     
+        $scope.login_url_succ= window.location.href;
+        $scope.login_url_fail= window.location.href;        
+        
+        var sid = $routeParams.sid;
+        var mess = $routeParams.mess;
+        var user = $routeParams.u;
+        var err = $routeParams.err;
+        var dataVerify = $routeParams;        
+        if(sid != undefined && mess != undefined && user != undefined){
+            console.log("========= clear cookies");
+            clearCoookies();
+            LoginService.verify(dataVerify)
+            .then(function (response) {
+                console.log("========= verify");
+                if (response.err === 0) {
+                    $rootScope.globals.currentUser.username = $routeParams.u;  
+                    $rootScope.app_id = response.dt.app_id;
+                    $rootScope.app_user = response.dt.app_user;
+                    $cookies.put('u', $rootScope.globals.currentUser.username);
+                    $cookies.put('app_id', $rootScope.app_id);
+                    $location.url($location.path());
+                    $location.path('/dashboard'); 
+                }else{
+                    $location.url($location.path());
+                    $scope.showAlert(response.msg);
+                    $location.path('/login');
+                }
+            });
+            
+        } else if (err != undefined) {
+            $scope.showAlert("Vui lòng kiểm tra lại tên đăng nhập/mật khẩu");
+        }
+        $scope.showAlert = function(ev) {  
+                        $mdDialog.show(
+                          $mdDialog.alert()
+                            .parent(angular.element(document.querySelector('#popupContainer')))
+                            .clickOutsideToClose(true)
+                            .title('Thông báo')
+                            .textContent(ev)
+                            .ariaLabel('Alert Dialog Demo')
+                            .ok('OK')
+                            .targetEvent(ev)
+                        );
+        };
+        
+        function clearCoookies (){
+            $rootScope.app_id = "";            
+            $rootScope.globals.currentUser.username = "";
+            $cookies.remove('app_id');
+            $cookies.remove('u'); 
+        }  
+    }
+})();

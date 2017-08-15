@@ -1,0 +1,149 @@
+<div id="wrapper">
+    <div class="container body">
+        <div class="main_container">
+            <div ng-include src="'sidebar/sidebar.view.html'"></div> 
+            <!-- top -->
+            <div ng-include src="'header/header.view.html'"></div> 
+            <!-- main content -->
+            <div class="right_col" role="main">
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="x_panel ">
+
+                                <div class="x_content"> 
+                                    <div class="row">
+                                        
+                                            <div class="row">
+                                                
+                                                <div class="col-md-4">
+                                                    <label>Từ: </label>                                                     
+                                                    <div class='input-group date datepicker' id="fromdate" data-date-format="dd-mm-yyyy">
+                                                        <input type='text' class="form-control" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                </div> 
+                                                
+                                                <div class="col-md-4">
+                                                    <label>Đến: </label>                                                    
+                                                    <div class='input-group date datepicker' id="todate" data-date-format="dd-mm-yyyy">
+                                                        <input type='text' class="form-control" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                </div> 
+                                            </div>                                            
+                                            
+                                            <div class="row form-group">
+                                                <div class="col-md-4">
+                                                    <input ng-model="txtBarCode" ng-keypress="keypress($event)" id="txtBarCode" class="form-control" style="width: 100%;" placeholder="Mã barcode">
+                                                </div>
+                                                <div class="col-md-8">                                                                                                        
+                                                    <div class="col-md-3">
+                                                        <button ng-click="verifyInvoice(txtBarCode)" type="button" class="btn btn-primary">Kiểm tra</button>
+                                                    </div>
+                                                    <div ng-if="isVerify"  class="col-md-8">
+                                                        <div ng-if="status" class="alert alert-success" style="padding-top: 10px;align-content: center;text-align: center;height: 37px;">
+                                                            <strong>Hợp lệ</strong>
+                                                        </div>
+                                                        <div ng-if="!status" class="alert alert-danger" style="padding-top: 10px;align-content: center;text-align: center;height: 37px;">
+                                                            <strong>Không hợp lệ</strong>
+                                                        </div>
+                                                    </div>                                                    
+                                                </div>
+                                            </div>
+                                        
+                                    </div>
+                                    <div class="row">                                        
+                                        <table class="table table-bordered">  
+                                            <thead>
+                                                <tr>
+                                                  <th class="col-md-12" colspan="2" style="text-align: center; font-size: 17px;"> Thông tin hóa đơn </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="col-md-3">Mã đơn hàng</td>
+                                                    <td class="col-md-9">{{invoice.invoice_code}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="col-md-3">Ngày tạo</td>
+                                                    <td class="col-md-9">{{invoice.created_date_time}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="col-md-3">Tình trạng </td>
+                                                    <td class="col-md-9">{{DisplayStauts(invoice.payment_status)}}</td>
+                                                </tr>      
+                                                <tr>
+                                                    <td class="col-md-3">Tổng tiền</td>
+                                                    <td ng-if="status"  class="col-md-9">{{ invoice.amount | currency:"":0}} VNĐ</td>                                                    
+                                                </tr>
+                                          </tbody>
+                                        </table>
+                                                     
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>           
+        </div>        
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    // $(function () {
+    //     $('#fromdate').datetimepicker();
+    // });
+
+    var dateFrom = new Date();    
+    dateFrom.setDate(dateFrom.getDate() - 1);
+
+    $("#fromdate").datepicker({ 
+        autoclose: true, 
+        todayHighlight: true,
+        viewMode: "days", 
+        minViewMode: "days"
+    }).datepicker('update', dateFrom)
+    .on('changeDate', function(e) {
+        //var currDate = new Date(e.date);
+        //var dateString = currDate.getFullYear() + "-" + (currDate.getMonth() +1) + "-" + currDate.getDate();
+        
+        var fromDateValue = new Date(e.date);
+        var myScope = angular.element(document.getElementById('wrapper')).scope();
+        if (fromDateValue > myScope.toDate) {
+            $("#fromdate").datepicker('setDate', myScope.fromDate);
+            return;
+        } else if (fromDateValue === myScope.fromDate) {
+            return;
+        }
+
+        myScope.fromDate = fromDateValue;
+        
+    });
+
+
+    $("#todate").datepicker({ 
+        autoclose: true, 
+        todayHighlight: true,
+        viewMode: "days", 
+        minViewMode: "days"
+    }).datepicker('update', new Date())
+    .on('changeDate', function(e) {
+        var toDateValue = new Date(e.date);
+        var myScope = angular.element(document.getElementById('wrapper')).scope();
+
+        if (toDateValue < myScope.fromDate) {
+            $("#todate").datepicker('setDate', myScope.toDate);
+            return;
+        } else if (toDateValue === myScope.toDate) {
+            return;
+        }
+        myScope.toDate = toDateValue;
+    });
+</script>

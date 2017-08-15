@@ -1,0 +1,71 @@
+<div class="top_nav" ng-controller="HeaderController">
+  <div class="nav_menu">
+    <nav>
+        <div class="nav toggle">
+            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+            <span class="title">{{titlePage}}</span>
+        </div>
+        <ul class="nav navbar-nav navbar-right">        
+            <li>
+                <a ng-click="logout()" class="btn btn-link"><i class="fa fa-sign-out"></i> Đăng xuất</a>                
+            </li>
+            <li>
+                <a ng-click="changePassword()" class="btn btn-link"><i class="fa fa-key"></i> Đổi mật khẩu</a>                
+            </li>
+        </ul>
+    </nav>
+  </div>
+</div>
+<script src="assets/gentelella-master/build/js/custom.js"></script>
+<script type="text/ng-template" id="popupChangePassword.html">
+    <form name="changePasssword">
+        <div class="modal-header">
+            <h3 class="modal-title">Thay đổi mật khẩu</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label>Tài khoản:</label> 
+                    </div>
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                        <input type="text" class="form-control" ng-model="u" readonly="true">
+                    </div>
+                </div>                                             
+            </div>
+            <div class="form-group" ng-class = "{'has-error' : changePasssword.o_pass.$invalid && ( submitClicked)}">
+                <div class="row">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label>Mật khẩu hiện tại: <span style="color: red; font-style: italic;">*</span></label></label> 
+                    </div>
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                        <input id="focusElement" class="form-control" name = "o_pass" ng-model="o_pass" ng-maxlength="32" ng-minlength="6" ng-required="true" autofocus>
+                        <span class="red" ng-show="changePasssword.o_pass.$invalid && ( submitClicked)">(*) Mật khẩu tối thiểu 6 kí tự, tối đa 32 kí tự.</span>
+                    </div>
+                </div>                                             
+            </div>
+            <div class="form-group" ng-class = "{'has-error' : changePasssword.n_pass.$invalid && ( submitClicked)}">
+                <div class="row">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label>Mật khẩu mới: <span style="color: red; font-style: italic;">*</span></label></label> 
+                    </div>
+                    <div class="col-md-8 col-sm-8 col-xs-8">
+                        <input class="form-control" name="n_pass" ng-model="n_pass" ng-maxlength="32" ng-minlength="6" ng-required="true">
+                        <span class="red" ng-show="changePasssword.n_pass.$invalid && ( submitClicked)">(*) Mật khẩu tối thiểu 6 kí tự, tối đa 32 kí tự.</span>
+                    </div>
+                </div>                                             
+            </div>            
+        </div>
+        <div class="modal-footer form-group">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <p style="color:red; font-style: italic; margin-top:5px;">(*) Cần cập nhật thông tin đầy đủ</p>
+                </div>
+                <div class="col-md-6 col-xs-6 col-sm-6">
+                    <button class="btn btn-success" type="submit" ng-click="save()">Lưu thông tin</button>
+                    <button class="btn btn-warning" type="button" ng-click="cancel()">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>

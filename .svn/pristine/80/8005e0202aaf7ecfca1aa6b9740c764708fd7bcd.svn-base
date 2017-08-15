@@ -1,0 +1,15 @@
+(function () {
+    'use strict';
+
+    theApp
+        .factory('UserService', UserService);
+
+    UserService.$inject = ['$http', 'API_URL'];
+    function UserService($http, API_URL) {
+        var service = {};
+        
+        return service;
+        
+    }
+    
+})();

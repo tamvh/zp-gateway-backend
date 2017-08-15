@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Email</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <div style="font-family: Verdana, Geneva, sans-serif; font-size: 14px;">
+            <div class="row">
+                <p>Chào bạn,<br><br>
+                Bạn hoặc ai đó xác nhận rằng bạn (Tài khoản: {{EMAIL}}) quên mật khẩu tại {{URL}}.<br>
+                . Nếu không phải từ bạn, xin vui lòng bỏ qua email này. <br>
+                . Nếu đúng là từ bạn, nhấn vào {{URL_ACTIVE}} để tạo lại mật khẩu. Bạn cũng có thể copy/paste {{URL_ACTIVE}} vào trình duyệt web.
+                </p>
+            </div>            
+	</div>
+    </body>
+</html>
+
+

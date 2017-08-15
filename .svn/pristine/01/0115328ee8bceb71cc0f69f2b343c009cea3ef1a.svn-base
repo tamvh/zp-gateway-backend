@@ -1,0 +1,22 @@
+/* global theApp */
+
+(function () {
+    'use strict';    
+    theApp.controller('ResetPasswordController', ResetPasswordController);
+    ResetPasswordController.$inject = ['$location', '$scope', 'ResetPasswordService', 'LoginService', '$rootScope' ,'$window', '$routeParams', '$cookies','$mdDialog'];
+    function ResetPasswordController($location, $scope, ResetPasswordService, LoginService, $rootScope, $window, $routeParams, $cookies, $mdDialog) {                          
+        $scope.submitClicked = false;
+        $scope.isCheckConfirmPass = false;
+        $scope.active = function() {
+            $scope.submitClicked = true;
+            var n_pass = $scope.n_pass;
+            var confirm_n_pass = $scope.confirm_n_pass;
+            if(confirm_n_pass !== n_pass) {
+                $scope.isCheckConfirmPass = true;
+                return;
+            }
+        };
+        
+        
+    }
+})();

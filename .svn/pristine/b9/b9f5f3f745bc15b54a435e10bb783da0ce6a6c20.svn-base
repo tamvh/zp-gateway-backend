@@ -1,0 +1,471 @@
+(function () {
+    'use strict';
+
+    theApp
+            .controller('StaffController', StaffController);
+
+    StaffController.$inject = ['$location', '$scope', 'LoginService','StaffService', '$filter', '$uibModal', '$rootScope', '$confirm','$mdDialog'];
+    function StaffController($location, $scope, LoginService, StaffService, $filter, $uibModal, $rootScope, $confirm, $mdDialog) {
+//        if(!LoginService.isLogined()){
+//            //alert("Đăng nhập trước khi sử dụng");
+//            $location.path("/login");
+//            return ;
+//        }
+        $scope.result = "";
+        $scope.txtTransID = "";
+        $scope.items = [];
+        $scope.invoiceCode = "";
+        $scope.invoiceAmount = "";
+        $scope.itemDisplayed = [];
+        $scope.newItem = {};
+        updateData();
+        function updateData() {
+            StaffService.getListItem()
+                    .then(function (response) {
+                        if (response.err === 0) {
+                            $scope.itemDisplayed = response.dt.staffs;
+                        } else if (response.err === 101) {      // has not logged in
+                            $location.path('/login');
+                        } else {
+                            console.log("error getListStaffItem");
+                        }
+                    });
+        }
+                
+        
+        $scope.showAlert = function(ev) {  
+                        $mdDialog.show(
+                          $mdDialog.alert()
+                            .parent(angular.element(document.querySelector('#popupContainer')))
+                            .clickOutsideToClose(true)
+                            .title('Thông báo')
+                            .textContent(ev)
+                            .ariaLabel('Alert Dialog Demo')
+                            .ok('OK')
+                            .targetEvent(ev)
+                        );
+        };
+        
+        $scope.updateStatus = function (item) {
+            $scope.showAlert("Bạn có muốn active/deactive tài khoản này không?" );
+             StaffService.updateStaffStatusMasterDB(item)
+             .then(function (response) {
+                        if (response.err === 0) {
+                            
+                        } else {
+                            console.log(response.msg);
+                        }
+                    });
+        }
+        
+        $scope.search = function (itemNameSearch) {
+            StaffService.searchItem(itemNameSearch)
+                    .then(function (response) {
+                        if (response.err === 0) {
+                            $scope.items = response.dt.items;
+                            for (var i  in $scope.items) {
+                                $scope.items[i].statusObj = $filter('filter')($rootScope.itemStatus, {itemStatusID: $scope.items[i].status})[0];
+                                $scope.items[i].delete_selected = false;
+                            }
+                        } else {
+                            console.log(response.msg);
+                        }
+                    });
+        }
+
+
+
+        $scope.deleteItems = function () {
+            $scope.listItemIDDelete = [];
+            $scope.listItemNameDelete = [];
+            console.log($scope.itemDisplayed);
+            for (var i in $scope.itemDisplayed) {
+                if ($scope.itemDisplayed[i].delete_selected === true) {
+                    $scope.listItemIDDelete.push($scope.itemDisplayed[i].staff_id);
+                    $scope.listItemNameDelete.push($scope.itemDisplayed[i].account);
+                }
+            }
+            if ($scope.listItemIDDelete.length <= 0) {
+            } else {
+                $confirm({title: 'Xóa nhân viên', text: 'Bạn có chắc chắn xóa (một/nhiều) nhân viên này ra khỏi hệ thống?'})
+                        .then(function () {
+                            StaffService.deleteItem($scope.listItemIDDelete, $scope.listItemNameDelete)
+                                    .then(function (response) {
+                                        if (response.err === 0) {
+                                            updateData();
+                                        }
+                                    });
+                        });
+            }
+        }
+
+        $scope.showGender = function (gender) {
+            if (gender === -10)//not choice
+                return "";
+            var selected = [];
+            selected = $filter('filter')($rootScope.staffGender, {staffGenderID: gender});
+            return selected[0].staffGenderName;
+        }
+
+        $scope.showStatusName = function (status) {
+            var selected = [];
+            selected = $filter('filter')($rootScope.itemStatus, {itemStatusID: status});
+            return selected[0].itemStatusName;
+        }
+
+        $scope.openPopupEditStaff = function (size, index, item) {
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'PopupEditStaff.html',
+                controller: 'EditStaffController',
+                size: size,
+                resolve: {
+                    index: function () {
+                        return index;
+                    },
+                    item: function () {
+                        return item;
+                    }
+
+                }
+            });
+
+            modalInstance.result.then(function (result) {
+                if (result == true) {
+                    updateData();
+                }
+            });
+        }
+        
+        $scope.openPopUpUpdateStaffStatus = function (size,index,item) {
+                var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'PopUpUpdateStaffStatus.html',
+                controller: 'UpdateStaffStatusController',
+                size: size,
+                resolve: {
+                    index: function () {
+                        return index;
+                    },
+                    item: function () {
+                        return item;
+                    }
+
+                }
+            });
+            modalInstance.result.then(function (result) {
+                if (result == true) {
+                    updateData();
+                }
+            });
+        }
+        
+        $scope.openPopupAddItem = function (size) {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'PopupAddItem.html',
+                controller: 'AddStaffController',
+                size: size,
+                resolve: {
+                }
+            });
+            modalInstance.result.then(function (result) {
+                if (result == true) {
+                    updateData();
+                }
+            });
+        }
+        $scope.DisplayDetail = function (transaction) {
+            if (transaction.invoice_id.length <= 0) {
+                return;
+            }
+        }
+    }
+
+    theApp.controller('AddStaffController', AddStaffController);
+    AddStaffController.$inject = ['$rootScope', '$scope', '$uibModalInstance', 'StaffService', '$filter', 'Upload', 'UPLOAD_URL'];
+    function AddStaffController($rootScope, $scope, $uibModalInstance, StaffService, $filter, Upload, UPLOAD_URL) {
+        angular.element("#focusElement").focus();
+        $scope.errNotMatchPsw = false;
+        $scope.newItem = {};
+        $scope.newItem.staff_confirm_psw = "";
+
+        $scope.onBlur = function ($event) {
+
+            if ($scope.newItem.psw != $scope.newItem.staff_confirm_psw)
+                $scope.errNotMatchPsw = true;
+            if ($scope.newItem.staff_confirm_psw.length <= 0 || $scope.newItem.psw === $scope.newItem.staff_confirm_psw)
+                $scope.errNotMatchPsw = false;
+
+        }
+
+
+
+        $scope.tempListStaffStatus = [];
+        $scope.tempListStaffPriority = [];
+
+        $scope.tempObj = {
+            staffGenderID: -10,
+            staffGenderName: "--Chọn--",
+            itemColor: "blue"
+        };
+        $scope.tempListStaffStatus.push($scope.tempObj);
+        $scope.tempListStaffStatus = $scope.tempListStaffStatus.concat(jQuery.extend(true, [], $rootScope.staffGender));
+        $scope.staffGender = $scope.tempListStaffStatus;
+        $scope.newItem.gender_selected = $scope.tempListStaffStatus[0];
+
+
+        $scope.tempObj2 = {
+            id: -10,
+            label: "--Chọn--",
+        };
+        $scope.tempListStaffPriority.push($scope.tempObj2);
+        $scope.tempListStaffPriority = $scope.tempListStaffPriority.concat(jQuery.extend(true, [], $rootScope.staffsPriList));
+        $scope.staffsPriList = $scope.tempListStaffPriority;
+
+        $scope.newItem.priority_selected = $scope.tempListStaffPriority[0];
+
+        $scope.newItem.status_selected = $rootScope.itemStatus[0];
+
+
+        $scope.itemStatus = $rootScope.itemStatus;
+        $scope.ok = function (picFile) {
+            $scope.submitClicked = true;
+            if ($scope.addForm.$valid) {
+            } else
+            {
+                //alert('Dữ liệu không hợp lệ, vui lòng nhập lại');
+                return;
+            }
+            if ($scope.newItem.account === "undefined" || $scope.newItem.psw === "undefined" || $scope.newItem.staff_confirm_psw === "undefined" || $scope.newItem.priority_selected.id === -10)
+            {
+                console.log('miss info');
+                return;
+            }
+            //for upload
+            var dtJSON = {merchant_code: $rootScope.merchantCode, sub_path: "staffs"};
+            var dt = JSON.stringify(dtJSON);
+            Upload.upload({
+                url: UPLOAD_URL,
+                data: {file: picFile, dt: dt}
+            }).then(function (resp) {
+                
+                $scope.submitClicked = true;
+                if ($scope.addForm.$valid && $scope.errNotMatchPsw === false) {
+                } else
+                {
+                    return;
+                }
+
+                //for init value
+                if(resp.data.dt.length > 0)
+                    $scope.newItem.staff_img = resp.data.dt[0].relative_path;
+                
+                $scope.newItem.staff_priority = $scope.newItem.priority_selected.label;
+                $scope.newItem.status = $scope.newItem.status_selected.itemStatusID;
+                $scope.newItem.gender = $scope.newItem.gender_selected.staffGenderID;
+                
+                if ($scope.newItem.account === "undefined" || $scope.newItem.psw === "undefined" || $scope.newItem.staff_confirm_psw === "undefined" || $scope.newItem.priority_selected.id === -10)
+                {
+                    console.log('miss info');
+                    return;
+                } else
+                    StaffService.addItem($scope.newItem)
+                            .then(function (response) {
+
+                                if (response.err === 0) {
+                                    $scope.successAddItem = response.msg;
+                                    $scope.errStaffCodeExist = true;
+                                    $uibModalInstance.close(true);
+                                } else {
+                                    $scope.showSecret = true;
+                                    $scope.txtAlert = response.msg;
+                                    console.log($scope.txtAlert);
+
+                                }
+                            }
+                            )
+            }, function (resp) {
+                console.log('Error status: ' + resp.status);
+                $scope.clicked = false;
+            }, function (evt) {
+                $scope.clicked = false;
+                //var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                //console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+            });
+
+        };
+        $scope.showStatusName = function (item) {
+            var selected = [];
+            selected = $filter('filter')($rootScope.itemStatus, {itemStatusID: item.status});
+            return selected[0].itemStatusName;
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.close($scope.listNewItem);
+        };
+    }
+    
+    
+    theApp.controller('UpdateStaffStatusController',UpdateStaffStatusController);
+    UpdateStaffStatusController.$inject = ['$rootScope', '$scope', '$uibModalInstance', 'StaffService', 'item', '$filter','Upload','UPLOAD_URL'];
+    function UpdateStaffStatusController($rootScope, $scope, $uibModalInstance, StaffService, item, $filter,Upload,UPLOAD_URL) {
+        $scope.item = jQuery.extend(true, {}, item);
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+        
+         var selected = [];
+        selected = $filter('filter')($rootScope.itemStatus, {itemStatusID: item.status});
+        if (selected.length > 0) {
+            $scope.item.status_selected = selected[0];
+        }
+        
+        var statusBeforeUpdate = $scope.item.status_selected.itemStatusID;
+        
+        $scope.ok = function () {
+                $scope.item.status = $scope.item.status_selected.itemStatusID;
+                var statusAfterUpdate = $scope.item.status;
+                if(statusBeforeUpdate === statusAfterUpdate){
+                    $uibModalInstance.close(true);
+                    return;
+                }
+                StaffService.updateStaffStatusMasterDB($scope.item)
+                    .then(function (response) {
+                        if (response.err === 0) {
+                            $uibModalInstance.close(true);
+                        } else {
+                            $scope.showSecret = true;
+                            $scope.txtAlert = response.msg;
+
+                        }
+                    });
+        }
+    }
+
+    theApp.controller('EditStaffController', EditStaffController);
+    EditStaffController.$inject = ['$rootScope', '$scope', '$uibModalInstance', 'StaffService', 'item', '$filter','Upload','UPLOAD_URL'];
+    function EditStaffController($rootScope, $scope, $uibModalInstance, StaffService, item, $filter,Upload,UPLOAD_URL) {
+
+        $scope.item = jQuery.extend(true, {}, item);
+        $scope.tmpItem = jQuery.extend(true, {}, item);
+        $scope.doCheck = true;
+        $scope.errMatch = false;
+
+        $scope.tempList = [];
+        $scope.tempList = $scope.tempList.concat(jQuery.extend(true, [], $rootScope.globals.staffsRole));
+        
+        $scope.tempObj = {
+            staffGenderID: -10,
+            staffGenderName: "--Chọn--",
+            itemColor: "blue"
+        };
+
+        $scope.tempListStaffStatus = [];
+        $scope.tempListStaffStatus.push($scope.tempObj);
+        $scope.tempListStaffStatus = $scope.tempListStaffStatus.concat(jQuery.extend(true, [], $rootScope.staffGender));
+        $scope.staffGender = $scope.tempListStaffStatus;
+        $scope.item.gender_selected = $scope.tempListStaffStatus[0];
+
+        $scope.item.staff_level_selected = jQuery.extend(true, [], $scope.tempList);
+        var selected = [];
+        selected = $filter('filter')($rootScope.globals.staffsRole, {label: item.staff_level});
+        if (selected.length > 0) {
+            $scope.item.staff_level_selected = selected[0];
+        }
+        
+        var selected = [];
+        selected = $filter('filter')($rootScope.itemStatus, {itemStatusID: item.status});
+        if (selected.length > 0) {
+            $scope.item.status_selected = selected[0];
+        }
+
+        $scope.changeValue = function (doCheck) {
+            $scope.item.psw = "";
+            $scope.item.psw_retype = "";
+        }
+
+        $scope.onBlur = function ($event) {
+
+            if ($scope.item.psw != $scope.item.psw_retype) {
+                $scope.errMatch = true;
+            }
+            if ($scope.item.psw_retype.length <= 0 || $scope.item.psw === $scope.item.psw_retype) {
+                $scope.errMatch = false;
+            }
+        }
+
+
+        $scope.ok = function (picFile) {
+
+            $scope.submitClicked = true;
+            if ($scope.editForm.$valid && $scope.errMatch === false) {
+            } else
+            {
+                return;
+            }
+
+            //$scope.item.staff_priority = $scope.item.priority_selected.label;
+            $scope.item.status = $scope.item.status_selected.itemStatusID;
+            $scope.item.staff_level = $scope.item.staff_level_selected.label;
+            //$scope.item.gender = $scope.item.gender_selected.staffGenderID;
+
+
+
+            //for upload
+            var dtJSON = {merchant_code: $rootScope.merchantCode, sub_path: "staffs"};
+            var dt = JSON.stringify(dtJSON);
+            Upload.upload({
+                url: UPLOAD_URL,
+                data: {file: picFile, dt: dt}
+            }).then(function (resp) {
+                 //for init value
+                if(resp.data.dt.length > 0)
+                    $scope.item.staff_img = resp.data.dt[0].relative_path;
+
+                if($scope.tmpItem.staff_code ===  $scope.item.staff_code && $scope.tmpItem.staff_name === $scope.item.staff_name && 
+                        $scope.tmpItem.staff_level === $scope.item.staff_level && $scope.tmpItem.staff_img === $scope.item.staff_img){
+                    $uibModalInstance.close(true);
+                    return;
+                }
+                    
+                StaffService.updateItem($scope.item)
+                    .then(function (response) {
+                
+                        if (response.err === 0) {
+                            $scope.item = response.dt.item;
+
+                            $uibModalInstance.close(true);
+                            $scope.errItemNameExist = false;
+                            $scope.errItemCodeExist = false;
+                        } else {
+                            $scope.showSecret = true;
+                            $scope.txtAlert = response.msg;
+
+                        }
+                    });
+            }, function (resp) {
+                console.log('Error status: ' + resp.status);
+                $scope.clicked = false;
+            }, function (evt) {
+                $scope.clicked = false;
+                //var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                //console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+            });
+
+            
+        };
+
+        $scope.doChange = function (value) {
+
+            $scope.checked = true;
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    }
+
+
+})();

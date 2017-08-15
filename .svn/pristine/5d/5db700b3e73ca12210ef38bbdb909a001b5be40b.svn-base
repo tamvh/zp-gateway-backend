@@ -1,0 +1,56 @@
+<div class="center_vertical">
+    <div class="login_wrapper">
+        <div class="animate form login_form ">
+            <section class="login_content">
+                <form name="changePasssword">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Thay đổi mật khẩu</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="row">                                
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="text" class="form-control" ng-model="u" readonly="true">
+                                </div>
+                            </div>                                             
+                        </div>
+                        <div class="form-group" ng-class = "{'has-error' : (isCheckPass && submitClicked)}">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="password" id="focusElement" placeholder="Nhập mật khẩu hiện tại" class="form-control" name = "o_pass" ng-model="o_pass" ng-required="true" autofocus>
+                                    <span class="red" ng-show="isCheckPass">(*) Sai mật khẩu</span>
+                                </div>
+                            </div>                                             
+                        </div>
+                        <div class="form-group" ng-class = "{'has-error' : changePasssword.n_pass.$invalid && (submitClicked)}">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="password" class="form-control" placeholder="Nhập mật khẩu mới" name="n_pass" ng-model="n_pass" ng-maxlength="32" ng-minlength="6" ng-required="true">
+                                    <span class="red" ng-show="changePasssword.n_pass.$invalid && (submitClicked)">(*) Mật khẩu tối thiểu 6 kí tự, tối đa 32 kí tự.</span>
+                                </div>
+                            </div>                                             
+                        </div>            
+                        <div class="form-group" ng-class = "{'has-error' : isCheckConfirmPass && (submitClicked)}">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <input type="password" class="form-control" placeholder="Xác nhận mật khẩu mới" name="confirm_n_pass" ng-model="confirm_n_pass" ng-required="true">
+                                    <span class="red" ng-show="isCheckConfirmPass">(*) Mật khẩu không khớp. Vui lòng nhập lại.</span>
+                                </div>
+                            </div>                                             
+                        </div>            
+                    </div>
+                    <div class="modal-footer form-group">
+                        <div class="row">
+                            <div class="col-md-12 col-xs-12 col-sm-12" style="text-align: center;">
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success btnblue form-control" ng-click="save()">Lưu thông tin</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
